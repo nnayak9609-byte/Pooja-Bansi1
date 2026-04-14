@@ -1,80 +1,237 @@
-<!-- FINAL PRO VERSION -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ultimate Study OS</title>
 
-<link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{margin:0;font-family:Arial;background:#0f172a;color:#fff}
+header{display:flex;justify-content:space-between;padding:20px;background:#1e293b}
+button{margin:5px;padding:8px;border:none;border-radius:6px;background:#38bdf8}
+.dark{background:#fff;color:#000}
+.card{background:#1e293b;padding:15px;margin:10px;border-radius:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
+.active{border:2px solid yellow}
+</style>
+
 </head>
 
 <body>
 
 <header>
-<div class="header-left">
-<h1 id="rota-display-title"></h1>
-
+<div>
+<h1 id="rotaTitle"></h1>
 <p id="datetime"></p>
-<p id="daily-quote"></p>
+<p id="quote"></p>
 
-<div class="tool-box">
-<span id="stopwatch">00:00:00</span>
-<button onclick="toggleStopwatch()" id="sw-btn">Start</button>
-<button onclick="resetStopwatch()">Reset</button>
+<div>
+<span id="sw">00:00:00</span>
+<button onclick="toggleSW()">Start</button>
+<button onclick="resetSW()">Reset</button>
 </div>
 
-<div class="tool-box">
-<input type="time" id="alarm-time">
+<div>
+<input type="time" id="alarm">
 <button onclick="setAlarm()">Set</button>
-<button onclick="resetAlarm()">Reset</button>
-<button id="stop-alarm-btn" onclick="stopAlarmSound()" style="display:none;">STOP</button>
+<button onclick="stopAlarm()">Stop</button>
 </div>
 
-<div class="tool-box">
-<button onclick="playMusic()">🎵 Play Focus</button>
-<button onclick="pauseMusic()">⏸ Pause</button>
+<div>
+<button onclick="playMusic()">🎵</button>
+<button onclick="pauseMusic()">⏸</button>
 </div>
 
 </div>
 
 <div>
-<h3 id="greeting"></h3>
-<button onclick="toggleTheme()">🌓 Theme</button>
+<h3 id="greet"></h3>
+<button onclick="toggleTheme()">Theme</button>
 </div>
 </header>
 
-<main>
+<section class="grid" id="rotaBox"></section>
 
-<div class="charts-grid">
-<div class="chart-card"><canvas id="progressChart"></canvas></div>
-<div class="chart-card"><canvas id="timeChart"></canvas></div>
-</div>
-
-<div id="schedule-container" class="rota-container"></div>
-
-<section class="targets-section">
+<section class="card">
 <h3>🎯 Next Day Target</h3>
-<input id="target-text" placeholder="Add target">
+<input id="targetInput">
 <button onclick="addTarget()">Add</button>
-<ul id="target-list"></ul>
+<ul id="targets"></ul>
 </section>
 
-</main>
+<section class="card">
+<canvas id="chart"></canvas>
+</section>
 
-<footer>
-<h2>Total Hours: <span id="weekly-total">0</span></h2>
-
-<button onclick="saveData()">💾 Save</button>
-<button onclick="startNewRota()">🔄 Reset Rota</button>
-<button onclick="exportCSV()">📊 Export</button>
-<button onclick="window.print()">🖨 Print</button>
+<footer class="card">
+<h2>Total Hours: <span id="total">0</span></h2>
+<button onclick="save()">Save</button>
+<button onclick="resetAll()">Reset</button>
+<button onclick="exportCSV()">Export</button>
+<button onclick="window.print()">Print</button>
 </footer>
 
-<audio id="alarm-sound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
-<audio id="focus-music" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+<audio id="music" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+<audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
 
-<script src="script.js"></script>
+<script>
+
+// GREETING
+function greet(){
+let h=new Date().getHours();
+let g="Good Evening";
+if(h<12) g="Good Morning";
+else if(h<17) g="Good Afternoon";
+document.getElementById("greet").innerText=g+" Pooja 🌸";
+}
+greet();
+
+// DATE TIME
+setInterval(()=>{
+document.getElementById("datetime").innerText=new Date().toLocaleString();
+},1000);
+
+// QUOTES
+const quotes=[
+"Success is the sum of small efforts",
+"Stay consistent",
+"Focus wins",
+"Small steps matter"
+];
+document.getElementById("quote").innerText=
+quotes[new Date().getDate()%quotes.length];
+
+// STOPWATCH
+let t=0,interval;
+function toggleSW(){
+if(interval){clearInterval(interval);interval=null;return;}
+interval=setInterval(()=>{t++;updateSW();},1000);
+}
+function updateSW(){
+let h=Math.floor(t/3600),m=Math.floor(t%3600/60),s=t%60;
+document.getElementById("sw").innerText=
+`${h.toString().padStart(2,0)}:${m.toString().padStart(2,0)}:${s.toString().padStart(2,0)}`;
+}
+function resetSW(){t=0;updateSW();clearInterval(interval);}
+
+// MUSIC
+function playMusic(){document.getElementById("music").play();}
+function pauseMusic(){document.getElementById("music").pause();}
+
+// ALARM
+function setAlarm(){
+let val=document.getElementById("alarm").value;
+setInterval(()=>{
+let now=new Date().toTimeString().slice(0,5);
+if(now===val){
+document.getElementById("alarmSound").play();
+}
+},1000);
+}
+function stopAlarm(){
+document.getElementById("alarmSound").pause();
+}
+
+// AUTO ROTA
+const rota=[
+{name:"Morning D1",office:3,s1:3,s2:1.5},
+{name:"Morning D2",office:3,s1:3,s2:1.5},
+{name:"Evening D3",office:3,s1:2.5,s2:3.5},
+{name:"Evening D4",office:3,s1:2.5,s2:3.5},
+{name:"Night 1",office:3,s1:2.5,s2:4.5},
+{name:"Night 2",office:3,s1:3,s2:2.5},
+{name:"Off Day",office:0,s1:3,s2:2.5},
+{name:"General",office:0,s1:3,s2:3.5}
+];
+
+const start=new Date(localStorage.getItem("start")||"2026-04-13");
+localStorage.setItem("start",start);
+
+function getDay(){
+let diff=Math.floor((new Date()-new Date(start))/(1000*60*60*24));
+return ((diff%8)+8)%8;
+}
+
+function renderRota(){
+let box=document.getElementById("rotaBox");
+box.innerHTML="";
+let today=getDay();
+
+rota.forEach((r,i)=>{
+let div=document.createElement("div");
+div.className="card "+(i===today?"active":"");
+div.innerHTML=`
+<h3>${r.name}</h3>
+Office: ${r.office}h<br>
+Study1: ${r.s1}h<br>
+Study2: ${r.s2}h
+`;
+box.appendChild(div);
+});
+
+document.getElementById("rotaTitle").innerText=
+"Day "+(today+1)+" - "+rota[today].name;
+}
+
+renderRota();
+
+// TARGET
+function addTarget(){
+let v=document.getElementById("targetInput").value;
+let arr=JSON.parse(localStorage.getItem("targets")||"[]");
+arr.push(v);
+localStorage.setItem("targets",JSON.stringify(arr));
+showTargets();
+}
+function showTargets(){
+let arr=JSON.parse(localStorage.getItem("targets")||"[]");
+document.getElementById("targets").innerHTML=
+arr.map(x=>"<li>"+x+"</li>").join("");
+}
+showTargets();
+
+// CHART
+function updateChart(){
+let data=JSON.parse(localStorage.getItem("history")||"[1,2,3]");
+new Chart(document.getElementById("chart"),{
+type:"line",
+data:{labels:data.map((_,i)=>i+1),datasets:[{label:"Progress",data:data}]}
+});
+}
+updateChart();
+
+// SAVE
+function save(){
+let arr=JSON.parse(localStorage.getItem("history")||"[]");
+arr.push(Math.random()*10);
+localStorage.setItem("history",JSON.stringify(arr));
+updateChart();
+}
+
+// EXPORT
+function exportCSV(){
+let data=localStorage.getItem("history");
+let blob=new Blob([data]);
+let a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download="data.csv";
+a.click();
+}
+
+// RESET
+function resetAll(){
+localStorage.clear();
+location.reload();
+}
+
+// THEME
+function toggleTheme(){
+document.body.classList.toggle("dark");
+}
+
+</script>
+
 </body>
 </html>
