@@ -1,0 +1,80 @@
+<!-- FINAL PRO VERSION -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultimate Study OS</title>
+
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<header>
+<div class="header-left">
+<h1 id="rota-display-title"></h1>
+
+<p id="datetime"></p>
+<p id="daily-quote"></p>
+
+<div class="tool-box">
+<span id="stopwatch">00:00:00</span>
+<button onclick="toggleStopwatch()" id="sw-btn">Start</button>
+<button onclick="resetStopwatch()">Reset</button>
+</div>
+
+<div class="tool-box">
+<input type="time" id="alarm-time">
+<button onclick="setAlarm()">Set</button>
+<button onclick="resetAlarm()">Reset</button>
+<button id="stop-alarm-btn" onclick="stopAlarmSound()" style="display:none;">STOP</button>
+</div>
+
+<div class="tool-box">
+<button onclick="playMusic()">🎵 Play Focus</button>
+<button onclick="pauseMusic()">⏸ Pause</button>
+</div>
+
+</div>
+
+<div>
+<h3 id="greeting"></h3>
+<button onclick="toggleTheme()">🌓 Theme</button>
+</div>
+</header>
+
+<main>
+
+<div class="charts-grid">
+<div class="chart-card"><canvas id="progressChart"></canvas></div>
+<div class="chart-card"><canvas id="timeChart"></canvas></div>
+</div>
+
+<div id="schedule-container" class="rota-container"></div>
+
+<section class="targets-section">
+<h3>🎯 Next Day Target</h3>
+<input id="target-text" placeholder="Add target">
+<button onclick="addTarget()">Add</button>
+<ul id="target-list"></ul>
+</section>
+
+</main>
+
+<footer>
+<h2>Total Hours: <span id="weekly-total">0</span></h2>
+
+<button onclick="saveData()">💾 Save</button>
+<button onclick="startNewRota()">🔄 Reset Rota</button>
+<button onclick="exportCSV()">📊 Export</button>
+<button onclick="window.print()">🖨 Print</button>
+</footer>
+
+<audio id="alarm-sound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
+<audio id="focus-music" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+
+<script src="script.js"></script>
+</body>
+</html>
